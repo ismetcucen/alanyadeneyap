@@ -1,0 +1,1014 @@
+/**
+ * İnteraktif Devre ve Breadboard Simülatörü Stilleri
+ */
+
+.circuit-sim-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at center, #131b2e 0%, #0a0e17 100%);
+  overflow-y: auto;
+}
+
+/* Üst Başlık ve Mod Geçişi */
+.sim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(15, 20, 34, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--cizgi);
+  z-index: 10;
+}
+
+.sim-mode-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.sim-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--cizgi);
+  background: var(--bg-kart);
+  color: var(--metin-soluk);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-mode-btn:hover {
+  border-color: var(--cizgi-parlak);
+  color: var(--metin-ana);
+}
+
+.sim-mode-btn.active {
+  background: rgba(6, 182, 212, 0.15);
+  border-color: var(--deneyap-turkuaz);
+  color: var(--deneyap-turkuaz);
+}
+
+.sim-mode-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.sim-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--metin-soluk);
+  background: var(--bg-kart);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--cizgi);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--deneyap-yesil);
+  box-shadow: 0 0 8px var(--deneyap-yesil);
+}
+
+/* Simülasyon Sahnesi */
+.sim-arena {
+  flex: 1;
+  position: relative;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-wires-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Rehberli Kablolama Bilgi Kutusu */
+.sim-wire-guide {
+  background: rgba(20, 27, 45, 0.95);
+  border: 1px solid var(--deneyap-turkuaz);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.step-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--deneyap-turkuaz);
+  color: #0b1120;
+}
+
+.sim-wire-guide h4 {
+  font-size: 14.5px;
+  color: var(--metin-ana);
+  margin-top: 4px;
+}
+
+.sim-wire-guide p {
+  font-size: 12.5px;
+  color: var(--metin-soluk);
+}
+
+.wire-auto-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--bg-kart-hover);
+  border: 1px solid var(--cizgi-parlak);
+  color: var(--deneyap-turkuaz);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wire-auto-btn:hover {
+  background: var(--deneyap-turkuaz);
+  color: #0b1120;
+}
+
+/* Bileşenler Izgarası */
+.sim-components-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  z-index: 5;
+}
+
+.comp-card {
+  background: var(--bg-kart);
+  border: 1px solid var(--cizgi);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--golge-kart);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.comp-card:hover {
+  border-color: var(--cizgi-parlak);
+  transform: translateY(-2px);
+}
+
+.comp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+
+.comp-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--deneyap-turkuaz);
+  letter-spacing: 0.05em;
+}
+
+.comp-header h4 {
+  font-size: 14px;
+  color: var(--metin-ana);
+  font-weight: 700;
+}
+
+.comp-hint {
+  font-size: 11px;
+  color: var(--metin-cok-soluk);
+  margin-top: 10px;
+  text-align: center;
+}
+
+.comp-note {
+  font-size: 11.5px;
+  color: var(--metin-soluk);
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
+.comp-note code {
+  background: #090d16;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: var(--deneyap-turkuaz);
+}
+
+/* 1. MİNİ DENEYAP KART KARTI */
+.board-card {
+  background: linear-gradient(135deg, #093748 0%, #031e2a 100%);
+  border-color: #0e5b74;
+}
+
+.mini-deneyap-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0,0,0,0.4);
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px dashed #0891b2;
+}
+
+.mini-rgb-led {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #222;
+  border: 1px solid rgba(255,255,255,0.4);
+  transition: all 0.2s ease;
+}
+
+.mini-brand {
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  color: #fff;
+}
+
+.mini-esp {
+  font-family: var(--font-kod);
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.board-pins-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+
+/* 2. DAHİLİ RGB LED GÖSTERGESİ */
+.big-rgb-display {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.rgb-orb {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #111;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.25s ease;
+}
+
+.rgb-channel-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ch-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  background: var(--bg-koyu);
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+.ch-l { color: var(--metin-soluk); }
+.ch-v { color: var(--metin-ana); font-weight: 700; font-family: var(--font-kod); }
+
+/* 3. HARİCİ LED'LER */
+.led-fixture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.sim-led {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.red-led { background: #5a1015; border: 2px solid #991b1b; }
+.blue-led { background: #0c2d48; border: 2px solid #0284c7; }
+.green-led { background: #064e3b; border: 2px solid #059669; }
+.yellow-led { background: #713f12; border: 2px solid #d97706; }
+
+.led-glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.red-led .led-glow { background: radial-gradient(circle, #ef4444 20%, transparent 70%); }
+.blue-led .led-glow { background: radial-gradient(circle, #38bdf8 20%, transparent 70%); }
+.green-led .led-glow { background: radial-gradient(circle, #10b981 20%, transparent 70%); }
+.yellow-led .led-glow { background: radial-gradient(circle, #fbbf24 20%, transparent 70%); }
+
+.led-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--metin-soluk);
+  margin-top: 10px;
+}
+
+/* 4. TACTILE PUSH BUTON */
+.btn-fixture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.tactile-btn {
+  width: 60px;
+  height: 60px;
+  background: #1e293b;
+  border: 3px solid #475569;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #0f172a, 0 10px 15px rgba(0,0,0,0.4);
+  transition: all 0.1s ease;
+}
+
+.btn-top {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #38bdf8 0%, #0284c7 100%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  transition: transform 0.1s ease;
+}
+
+.tactile-btn.pressed {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #0f172a, 0 5px 8px rgba(0,0,0,0.4);
+}
+
+.tactile-btn.pressed .btn-top {
+  transform: scale(0.92);
+  filter: brightness(1.25);
+}
+
+.btn-state-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--deneyap-turkuaz);
+  margin-top: 12px;
+}
+
+/* 5. POTANSİYOMETRE */
+.pot-fixture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.pot-dial {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #334155 0%, #0f172a 100%);
+  border: 3px solid #64748b;
+  position: relative;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+}
+
+.pot-indicator {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 14px;
+  background: var(--deneyap-turkuaz);
+  border-radius: 2px;
+  transform-origin: 50% 29px;
+  transition: transform 0.05s linear;
+}
+
+.pot-slider {
+  width: 100%;
+  accent-color: var(--deneyap-turkuaz);
+}
+
+.pot-readouts {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 12px;
+  color: var(--metin-soluk);
+}
+
+.pot-readouts strong { color: var(--deneyap-turkuaz); font-family: var(--font-kod); }
+
+/* 6. PIEZO BUZZER */
+.buzzer-fixture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.buzzer-body {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 3px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+}
+
+.buzzer-hole {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #020617;
+  border: 1px solid #1e293b;
+}
+
+.sound-wave {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--deneyap-turkuaz);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.buzzer-body.buzzing .sound-wave.wave-1 { animation: soundWave 0.8s infinite; }
+.buzzer-body.buzzing .sound-wave.wave-2 { animation: soundWave 0.8s infinite 0.25s; }
+.buzzer-body.buzzing .sound-wave.wave-3 { animation: soundWave 0.8s infinite 0.5s; }
+
+@keyframes soundWave {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.buzzer-stat {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--deneyap-turkuaz);
+  margin-top: 10px;
+}
+
+/* 7. TRAFİK LAMBASI */
+.traffic-card {
+  align-items: center;
+}
+
+.traffic-light-post {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.traffic-light-box {
+  background: #020617;
+  border: 2px solid #334155;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+}
+
+.traffic-pole {
+  width: 10px;
+  height: 40px;
+  background: #334155;
+}
+
+/* 8. IMU SU TERAZİSİ */
+.imu-bubble-fixture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.bubble-container {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: #090d16;
+  border: 3px solid #38bdf8;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 16px rgba(56, 189, 248, 0.2);
+}
+
+.bubble-crosshair {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(to right, transparent 49%, rgba(255,255,255,0.15) 50%, transparent 51%),
+    linear-gradient(to bottom, transparent 49%, rgba(255,255,255,0.15) 50%, transparent 51%);
+}
+
+.bubble-spirit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #38bdf8 0%, #0284c7 100%);
+  box-shadow: 0 0 12px #38bdf8;
+  transform: translate(-50%, -50%);
+  transition: transform 0.05s ease-out;
+}
+
+.imu-sliders {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--metin-soluk);
+}
+
+.tilt-slider {
+  width: 100%;
+  accent-color: var(--deneyap-turkuaz);
+}
+
+/* 9. 0.96" DENEYAP OLED EKRAN */
+.oled-fixture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.oled-glass {
+  background: #05070a;
+  border: 4px solid #1e293b;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.8), inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+.oled-screen {
+  display: block;
+  width: 210px;
+  height: 105px;
+  image-rendering: pixelated;
+  background: #020408;
+  border-radius: 3px;
+}
+
+.oled-pcb-pins {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 9px;
+  font-family: var(--font-kod);
+  color: #64748b;
+  font-weight: 700;
+}
+
+/* 10. LDR VE ULTRASONİK */
+.ldr-fixture, .ultrasonic-fixture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.ldr-icon-view {
+  font-size: 32px;
+}
+
+.ldr-slider, .dist-slider {
+  width: 100%;
+  accent-color: var(--deneyap-turkuaz);
+}
+
+.ldr-readout, .dist-readout {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 12px;
+  color: var(--metin-soluk);
+}
+
+.us-eyes {
+  display: flex;
+  gap: 12px;
+}
+
+.us-cone {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  border: 3px solid #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+/* 11. SG90 SERVO MOTOR */
+.servo-fixture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.servo-body {
+  width: 74px;
+  height: 60px;
+  background: #1d4ed8; /* Şeffaf mavi SG90 gövdesi */
+  border-radius: 8px;
+  border: 2px solid #3b82f6;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+}
+
+.servo-arm {
+  width: 58px;
+  height: 12px;
+  background: #ffffff;
+  border-radius: 6px;
+  position: absolute;
+  top: 14px;
+  transform-origin: 12px 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  transition: transform 0.15s ease-out;
+}
+
+.servo-arm::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0f172a;
+}
+
+/* 12. DC MOTOR FAN */
+.fan-fixture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.fan-blades {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fan-blades span {
+  position: absolute;
+  width: 28px;
+  height: 10px;
+  background: #ef4444;
+  border-radius: 5px;
+  transform-origin: center;
+}
+
+.fan-blades span:nth-child(1) { transform: rotate(0deg) translate(14px); }
+.fan-blades span:nth-child(2) { transform: rotate(120deg) translate(14px); }
+.fan-blades span:nth-child(3) { transform: rotate(240deg) translate(14px); }
+
+@keyframes fanSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 13. SERBEST DENEY MASASI (SANDBOX) STİLLERİ */
+.sandbox-sim-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at center, #111827 0%, #080c14 100%);
+  overflow-y: auto;
+  z-index: 60;
+}
+
+.sandbox-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--cizgi);
+}
+
+.sandbox-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sandbox-logo-dot {
+  font-size: 20px;
+  background: linear-gradient(135deg, #06b6d4, #0284c7);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.sandbox-title-group h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--metin-ana);
+}
+
+.sandbox-title-group p {
+  font-size: 11.5px;
+  color: var(--metin-soluk);
+}
+
+.sandbox-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.sb-action-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--bg-kart);
+  border: 1px solid var(--cizgi-parlak);
+  color: var(--metin-ana);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sb-action-btn:hover {
+  background: var(--bg-kart-hover);
+}
+
+.sb-btn-add {
+  background: linear-gradient(135deg, var(--deneyap-turuncu), #ea580c);
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 10px rgba(249, 115, 22, 0.4);
+}
+
+.sb-btn-add:hover {
+  filter: brightness(1.1);
+}
+
+/* Açılır Parça Kutusu Çekmecesi */
+.sandbox-drawer {
+  background: #090e18;
+  border-bottom: 1px solid var(--cizgi);
+  padding: 12px 24px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sandbox-drawer.open {
+  display: flex;
+}
+
+.drawer-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--deneyap-turkuaz);
+  text-transform: uppercase;
+}
+
+.drawer-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.drawer-chip {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: var(--bg-kart);
+  border: 1px solid var(--cizgi-parlak);
+  color: var(--metin-ana);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.drawer-chip:hover {
+  background: var(--deneyap-turkuaz);
+  color: #0b1120;
+}
+
+.sandbox-arena {
+  flex: 1;
+  padding: 24px;
+}
+
+.sandbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.sb-card {
+  background: var(--bg-kart);
+  border: 1px solid var(--cizgi);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sb-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sb-tag {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--deneyap-turkuaz);
+}
+
+.sb-btn-remove {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-kart-hover);
+  color: var(--metin-soluk);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sb-btn-remove:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.fixture-status {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--deneyap-turkuaz);
+  margin-top: 8px;
+  display: block;
+  text-align: center;
+}
+
+/* 14. SESLİ REHBER VE ALTYAZI ÇUBUĞU */
+.speech-guide-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--cizgi-parlak);
+  padding: 10px 18px;
+  border-radius: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  max-width: 720px;
+  width: calc(100% - 32px);
+  margin: 0 auto;
+  pointer-events: auto;
+}
+
+.sg-avatar {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #06b6d4, #0284c7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-face {
+  font-size: 16px;
+}
+
+.speaking .sg-avatar {
+  box-shadow: 0 0 16px #38bdf8;
+  animation: avatarPulse 1s infinite alternate;
+}
+
+@keyframes avatarPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.15); }
+}
+
+.sg-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sg-tag {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--deneyap-turkuaz);
+  letter-spacing: 0.05em;
+}
+
+.sg-subtitle {
+  font-size: 13px;
+  color: #fff;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sg-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.sg-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-kart-hover);
+  color: var(--metin-soluk);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sg-btn:hover {
+  color: var(--deneyap-turkuaz);
+}
+
+.sg-btn.muted {
+  opacity: 0.4;
+}
+
+.sg-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+

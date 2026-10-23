@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="tr" data-tema="gece">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deneyap Kart Atölyesi · İnteraktif Eğitim ve Simülasyon</title>
+  <meta name="description" content="Milli Teknoloji Hamlesi Deneyap Kart ekosistemi için 360° pin tanıtımları, interaktif devre simülasyonları, Arduino C++ kod motoru ve görevlerle uygulamalı atölye.">
+  <meta name="theme-color" content="#0a0d14">
+
+  <!-- Stiller -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/board-viewer.css">
+  <link rel="stylesheet" href="css/simulator.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="stylesheet" href="css/sensors.css">
+  <link rel="stylesheet" href="css/certificate.css">
+</head>
+<body>
+
+  <!-- ÜST ÇUBUK: Sadeleştirilmiş ve Kristal Netliğinde Gezinme -->
+  <header class="ust-cubuk">
+    <div class="ust-sol">
+      <button class="ikon-dugme" id="liste-dugmesi" aria-label="Ders listesini aç" aria-expanded="false" title="Müfredat Listesi">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+      </button>
+
+      <a class="marka" href="./" aria-label="Deneyap Atölyesi Ana Sayfa">
+        <div class="amblem-icon">D</div>
+        <span class="marka-yazi">
+          <b>DENEYAP ATÖLYESİ</b>
+          <small>MİLLİ TEKNOLOJİ HAMLESİ</small>
+        </span>
+      </a>
+    </div>
+
+    <!-- 6 ANA MODÜL MENÜSÜ -->
+    <nav class="ana-modul-gezinme" id="ana-modul-gezinme" aria-label="Ana Modüller">
+      <button class="top-nav-btn active" data-mode="lessons">
+        <span class="nav-icon">🎓</span>
+        <span class="nav-text">Atölye Dersleri</span>
+      </button>
+      <button class="top-nav-btn" data-mode="sandbox">
+        <span class="nav-icon">⚡</span>
+        <span class="nav-text">Serbest Masa</span>
+      </button>
+      <button class="top-nav-btn" data-mode="board">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-text">360° Kart</span>
+      </button>
+      <button class="top-nav-btn" data-mode="sensors">
+        <span class="nav-icon">📡</span>
+        <span class="nav-text">Sensörler</span>
+        <span class="top-nav-badge">12</span>
+      </button>
+      <button class="top-nav-btn" data-mode="teknofest">
+        <span class="nav-icon">🚀</span>
+        <span class="nav-text">TEKNOFEST</span>
+      </button>
+      <button class="top-nav-btn" data-mode="cert">
+        <span class="nav-icon">🏆</span>
+        <span class="nav-text">Sertifika</span>
+      </button>
+    </nav>
+
+    <!-- Üst Sağ Araçlar -->
+    <div class="ust-sag">
+      <!-- Genel İlerleme Göstergesi -->
+      <div class="genel-ilerleme" id="genel-ilerleme" title="Tamamlanan Atölye Dersleri">
+        <span class="sayi">0 / 12</span>
+        <span class="cubuk"><i></i></span>
+      </div>
+
+      <!-- Ses Aç/Kapat Butonu -->
+      <button class="ikon-dugme" id="ses-dugmesi" aria-label="Sesi Kapat" title="Ses">
+        <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" /></svg>
+      </button>
+
+      <!-- Paneli Göster/Gizle -->
+      <button class="ikon-dugme" id="panel-dugmesi" aria-label="Paneli Gizle" aria-expanded="true" title="Yan Paneli Aç/Kapat">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M15 4v16" /></svg>
+      </button>
+
+      <!-- Gece/Gündüz Teması -->
+      <button class="ikon-dugme" id="tema-dugmesi" aria-label="Tema Değiştir" title="Tema Değiştir">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- SOL DERS LİSTESİ ÇEKMECESİ -->
+  <aside class="ders-listesi" id="ders-listesi" aria-label="Ders Listesi"></aside>
+  <div class="perde" id="perde" hidden></div>
+
+  <!-- ANA UYGULAMA ALANI -->
+  <div class="uygulama" id="uygulama">
+    <!-- MERKEZİ SAHNE ALANI -->
+    <main class="sahne-alani" id="sahne-alani">
+      <!-- Türkçe Sesli Rehber ve Altyazı Asistanı -->
+      <div id="speech-guide-container" class="sg-anchor-wrapper"></div>
+
+      <div class="sahne-icerik">
+        <!-- 1. Dersler Devre Simülatörü Alanı -->
+        <div id="sim-container" style="width:100%; height:100%;"></div>
+
+        <!-- 2. Serbest Deney Masası (Sandbox) Alanı -->
+        <div id="sandbox-container" style="width:100%; height:100%;" hidden></div>
+
+        <!-- 3. 360° Kart ve Pin Tanıtım Alanı -->
+        <div id="bv-container" style="width:100%; height:100%;" hidden></div>
+
+        <!-- 4. Sensör ve Modül Rehberi Alanı -->
+        <div id="sensor-container" style="width:100%; height:100%;" hidden></div>
+
+        <!-- 5. TEKNOFEST Projeleri Vitrini -->
+        <div id="teknofest-container" class="tf-projects-wrapper" hidden></div>
+
+        <!-- 6. Başarı Sertifikası Stüdyosu -->
+        <div id="cert-container" style="width:100%; height:100%;" hidden></div>
+      </div>
+
+      <!-- Alt 4 Adım İlerleme Çubuğu (Sadece Atölye Derslerinde Aktiftir) -->
+      <div class="alt-bolge" id="alt-adimlar-bolgesi">
+        <ol class="adimlar" id="adimlar">
+          <li>
+            <button class="adim-btn" data-adim="tani">
+              <span class="no">1</span>
+              <span class="ad">Kartı Tanı</span>
+            </button>
+          </li>
+          <li>
+            <button class="adim-btn aktif" data-adim="kur">
+              <span class="no">2</span>
+              <span class="ad">Devreyi Kur</span>
+            </button>
+          </li>
+          <li>
+            <button class="adim-btn" data-adim="calistir">
+              <span class="no">3</span>
+              <span class="ad">Kodu Yaz</span>
+            </button>
+          </li>
+          <li>
+            <button class="adim-btn" data-adim="gorev">
+              <span class="no">4</span>
+              <span class="ad">Görevler</span>
+            </button>
+          </li>
+        </ol>
+      </div>
+    </main>
+
+    <!-- SAĞ PANEL (DERS / KOD / GÖREVLER) -->
+    <aside class="panel" id="panel">
+      <!-- Sekme Başlıkları -->
+      <nav class="sekmeler" role="tablist">
+        <button class="panel-tab" role="tab" data-sekme="ders" aria-selected="true">DERS</button>
+        <button class="panel-tab" role="tab" data-sekme="kod" aria-selected="false">KOD</button>
+        <button class="panel-tab" role="tab" data-sekme="gorev" aria-selected="false">
+          GÖREVLER <span class="gorev-sayisi" id="gorev-sayisi"></span>
+        </button>
+      </nav>
+
+      <!-- 1. DERS SEKMESİ -->
+      <section class="panel-sekme-icerik ders-sekmesi" data-icerik="ders">
+        <p class="ust-baslik" id="ders-modul">DONANIM TEMELLERİ</p>
+        <h2 id="ders-baslik">Deneyap Kart ile Tanışma</h2>
+        <p class="sure" id="ders-sure">⏱️ 10 dk</p>
+        <p class="ozet" id="ders-ozet"></p>
+
+        <h3>BU DERSTE KAZANILACAKLAR</h3>
+        <ul class="kazanimlar" id="ders-kazanimlar"></ul>
+
+        <h3>KULLANILAN MALZEMELER</h3>
+        <ul class="malzemeler" id="ders-malzemeler"></ul>
+
+        <h3>PİN BAĞLANTI TABLOSU</h3>
+        <table class="baglantilar" id="ders-baglantilar"></table>
+
+        <button class="ana-dugme" id="kurmaya-basla">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+          <span>Devreyi Birlikte Kuralım</span>
+        </button>
+      </section>
+
+      <!-- 2. KOD SEKMESİ -->
+      <section class="panel-sekme-icerik kod-sekmesi" data-icerik="kod" hidden>
+        <!-- Kod Düzenleyici Konteyneri -->
+        <div id="code-editor-container" style="flex:1; display:flex; flex-direction:column;"></div>
+
+        <!-- Seri Monitör Konteyneri -->
+        <div id="serial-monitor-container"></div>
+      </section>
+
+      <!-- 3. GÖREVLER SEKMESİ -->
+      <section class="panel-sekme-icerik gorev-sekmesi" data-icerik="gorev" hidden>
+        <p class="ozet">Görevleri sırayla deneyin. Kod görevlerinde kodu <strong>KOD</strong> sekmesinde düzenleyip burada <strong>Denetle</strong> butonuna basın.</p>
+        <ol class="gorevler-listesi" id="gorevler-listesi"></ol>
+        <div class="sonraki" id="sonraki-ders" hidden></div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- Ana Modül Betiği -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

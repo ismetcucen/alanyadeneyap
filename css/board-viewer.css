@@ -1,0 +1,714 @@
+/**
+ * 360° Etkileşimli Deneyap Kart ve Pin Haritası Stilleri
+ */
+
+.board-viewer-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #111827 0%, #080b11 100%);
+}
+
+/* Üst Kontrol Çubuğu */
+.bv-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: rgba(15, 20, 34, 0.75);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--cizgi);
+  z-index: 10;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bv-board-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--metin-soluk);
+}
+
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--deneyap-turkuaz);
+  box-shadow: 0 0 8px var(--deneyap-turkuaz);
+}
+
+.bv-select {
+  background: var(--bg-kart);
+  color: var(--metin-ana);
+  border: 1px solid var(--cizgi-parlak);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.bv-select:focus {
+  border-color: var(--deneyap-turkuaz);
+}
+
+/* Pin Fonksiyon Filtreleri */
+.bv-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--cizgi);
+  background: var(--bg-kart);
+  color: var(--metin-soluk);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--cizgi-parlak);
+  color: var(--metin-ana);
+}
+
+.filter-btn.active {
+  background: rgba(6, 182, 212, 0.18);
+  border-color: var(--deneyap-turkuaz);
+  color: var(--deneyap-turkuaz);
+}
+
+.filter-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* 3D Sahne */
+.bv-stage {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  cursor: grab;
+  overflow: hidden;
+}
+
+.bv-stage.grabbing {
+  cursor: grabbing;
+}
+
+.bv-3d-scene {
+  transform-style: preserve-3d;
+  transition: transform 0.05s linear;
+  will-change: transform;
+}
+
+/* DENEYAP KART PCB MİMARİSİ */
+.deneyap-pcb {
+  width: 320px;
+  height: 520px;
+  background: linear-gradient(135deg, #093748 0%, #021a24 100%);
+  border-radius: 22px;
+  border: 2px solid #0e5b74;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    0 0 35px rgba(6, 182, 212, 0.15),
+    inset 0 0 15px rgba(0, 0, 0, 0.6);
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 50px 10px 20px 10px;
+  transform-style: preserve-3d;
+}
+
+/* Montaj Delikleri (Köşeler) */
+.deneyap-pcb::before,
+.deneyap-pcb::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #021a24 45%, #eab308 50%, #ca8a04 100%);
+  border: 1px solid rgba(0,0,0,0.5);
+}
+.deneyap-pcb::before { top: 12px; left: 12px; }
+.deneyap-pcb::after { top: 12px; right: 12px; }
+
+/* Üst Portlar (USB-C, JST, I2C) */
+.pcb-header-zone {
+  position: absolute;
+  top: -8px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: auto;
+}
+
+.pcb-jst-lipo {
+  background: #f8fafc;
+  border: 1px solid #94a3b8;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.jst-pins {
+  display: flex;
+  gap: 4px;
+}
+.jst-pins i {
+  display: block;
+  width: 3px;
+  height: 6px;
+  background: #eab308;
+}
+.jst-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: #ef4444;
+  margin-top: 2px;
+}
+
+.pcb-typec-port {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.typec-metal {
+  width: 58px;
+  height: 22px;
+  background: linear-gradient(180deg, #e2e8f0 0%, #94a3b8 50%, #64748b 100%);
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.typec-center {
+  width: 44px;
+  height: 8px;
+  background: #0f172a;
+  border-radius: 3px;
+}
+
+.typec-label {
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+  text-shadow: 0 1px 2px #000;
+}
+
+.pcb-i2c-port {
+  background: #f8fafc;
+  border: 1px solid #94a3b8;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.i2c-pins {
+  display: flex;
+  gap: 3px;
+}
+.i2c-pins i {
+  display: block;
+  width: 2px;
+  height: 5px;
+  background: #eab308;
+}
+.i2c-label {
+  font-size: 7px;
+  font-weight: 700;
+  color: #0284c7;
+  margin-top: 2px;
+}
+
+/* PIN HEADER YUVALARI */
+.pin-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  z-index: 5;
+}
+
+.pin-slot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.pin-slot:hover {
+  transform: scale(1.15);
+}
+
+.pin-pad {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0b1120;
+  border: 2px solid #eab308; /* Altın kaplama ENIG */
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.pin-hole {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #000;
+}
+
+.pin-label-silk {
+  font-family: var(--font-kod);
+  font-size: 10px;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 2px #000;
+}
+
+.hide-labels .pin-label-silk {
+  display: none;
+}
+
+/* Pin Vurgu ve Filtre Stilleri */
+.pin-slot.highlighted .pin-pad {
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px #38bdf8, 0 0 20px #0284c7;
+  animation: pinPulse 1.2s infinite alternate;
+}
+
+.pin-slot.selected .pin-pad {
+  border-color: #f97316;
+  box-shadow: 0 0 16px #f97316;
+}
+
+.pin-slot.dimmed {
+  opacity: 0.22;
+}
+
+@keyframes pinPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.22); }
+}
+
+/* PCB İÇ GÖVDE ELEMANLARI */
+.pcb-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 8px;
+}
+
+/* Anten */
+.pcb-antenna {
+  width: 130px;
+  height: 38px;
+  border: 2px solid #064e62;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  position: relative;
+  margin-top: 10px;
+}
+.antenna-track {
+  position: absolute;
+  inset: 4px;
+  border: 2px dashed #0891b2;
+  border-radius: 4px;
+}
+
+/* ESP32 Metal Zırh */
+.pcb-rf-shield {
+  width: 170px;
+  height: 140px;
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 40%, #64748b 100%);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  border: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  color: #1e293b;
+  text-align: center;
+  padding: 8px;
+}
+
+.rf-brand { font-size: 9px; font-weight: 800; letter-spacing: 0.1em; color: #475569; }
+.rf-title { font-size: 20px; font-weight: 900; letter-spacing: 0.08em; color: #0f172a; }
+.rf-sub { font-size: 8.5px; font-weight: 700; color: #0369a1; }
+.rf-chip-code { font-size: 9px; font-family: var(--font-kod); margin-top: 6px; font-weight: 600; }
+.rf-cert { font-size: 7.5px; color: #64748b; margin-top: 4px; }
+
+/* Sensörler ve Bileşenler */
+.pcb-components-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.pcb-btn-smd {
+  background: #334155;
+  border: 1px solid #64748b;
+  border-radius: 3px;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.btn-core {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e2e8f0;
+}
+.btn-text {
+  font-size: 8px;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-top: 2px;
+}
+
+/* Dahili RGB LED */
+.pcb-rgb-led {
+  width: 26px;
+  height: 26px;
+  background: #111827;
+  border: 1px solid #eab308;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.rgb-lens {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #334155;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+.rgb-label {
+  font-size: 6px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 1px;
+}
+
+/* LSM6DSM Çipi */
+.pcb-chip {
+  background: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 3px;
+  padding: 4px;
+  font-size: 7.5px;
+  font-family: var(--font-kod);
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* MEMS Mikrofon */
+.pcb-mic-hole {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mic-metal {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #eab308 0%, #ca8a04 100%);
+  border: 1px solid #713f12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mic-hole {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #000;
+}
+.mic-label {
+  font-size: 7px;
+  font-weight: 800;
+  color: #fff;
+  margin-top: 2px;
+}
+
+/* Alt Sanat */
+.pcb-footer-art {
+  margin-top: auto;
+  text-align: center;
+  padding-bottom: 8px;
+}
+.pcb-turkey-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #e2e8f0;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 3px #000;
+}
+.pcb-version-badge {
+  font-size: 8px;
+  font-weight: 600;
+  color: #06b6d4;
+  margin-top: 2px;
+}
+
+/* YÜZEN KAMERA ARAÇ ÇUBUĞU */
+.bv-camera-tools {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(20, 27, 45, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--cizgi-parlak);
+  box-shadow: var(--golge-kart);
+  z-index: 30;
+}
+
+.cam-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--metin-soluk);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cam-btn:hover {
+  background: var(--bg-kart-hover);
+  color: var(--deneyap-turkuaz);
+}
+
+.cam-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+
+.cam-sep {
+  height: 1px;
+  background: var(--cizgi-parlak);
+  margin: 2px 4px;
+}
+
+/* HOVER TOOLTIP */
+.pin-tooltip {
+  position: absolute;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--deneyap-turkuaz);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+  pointer-events: none;
+  z-index: 50;
+  max-width: 240px;
+}
+
+.tt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.tt-header strong { font-size: 14px; color: var(--deneyap-turkuaz); }
+.tt-volt { font-size: 11px; font-weight: 700; color: #f59e0b; }
+.tt-gpio { font-size: 11px; color: var(--metin-soluk); font-family: var(--font-kod); margin-bottom: 6px; }
+.tt-funcs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.tag { font-size: 9px; padding: 2px 5px; border-radius: 4px; font-weight: 700; background: var(--bg-kart-hover); color: var(--metin-ana); }
+.tt-desc { font-size: 11.5px; color: var(--metin-soluk); line-height: 1.35; }
+
+/* SÜRÜKLEME İPUCU */
+.bv-drag-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--metin-soluk);
+  pointer-events: none;
+  border: 1px solid var(--cizgi);
+}
+
+/* SEÇİLEN PİN INSPECTOR (DRAWER) */
+.pin-inspector {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, calc(100% - 32px));
+  background: rgba(20, 27, 45, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--cizgi-parlak);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+  z-index: 40;
+}
+
+.pi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.pi-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pi-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--deneyap-turkuaz);
+  color: #0b1120;
+}
+
+.pi-header h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--metin-ana);
+}
+
+.pi-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: var(--bg-kart);
+  color: var(--metin-soluk);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pi-close:hover {
+  background: var(--deneyap-kirmizi);
+  color: #fff;
+}
+
+.pi-desc {
+  font-size: 13px;
+  color: var(--metin-soluk);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.pi-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pi-stat {
+  font-size: 12px;
+  background: var(--bg-kart);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--cizgi);
+}
+
+.pi-stat .k { color: var(--metin-cok-soluk); font-weight: 600; }
+.pi-stat .v { color: var(--metin-ana); font-weight: 700; margin-left: 4px; }
+
+.pi-code-block {
+  background: #090d16;
+  border: 1px solid var(--cizgi);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pi-code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  color: var(--metin-cok-soluk);
+  font-weight: 600;
+}
+
+.pi-copy-btn {
+  background: transparent;
+  border: none;
+  color: var(--deneyap-turkuaz);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pi-code-block pre {
+  padding: 10px;
+  font-family: var(--font-kod);
+  font-size: 12px;
+  color: #38bdf8;
+  overflow-x: auto;
+}
