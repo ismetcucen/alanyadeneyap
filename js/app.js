@@ -1,6 +1,6 @@
 /**
  * Deneyap Kart İnteraktif Atölye Uygulama Orkestratörü
- * Tüm simülasyon modüllerini, sesli rehberi, kod editörünü ve vitrinleri yönetir.
+ * Referans Tasarım: yapayzekaokulum.com/atolye
  */
 import { LESSONS_DATA } from './data/lessons.js';
 import { BOARDS_DATA } from './data/boards.js';
@@ -19,23 +19,23 @@ import { ProgressManager, fireConfetti } from './utils/helpers.js';
 
 class DeneyapAtolyeApp {
   constructor() {
-    this.currentAppMode = 'lessons'; // 'lessons' | 'sandbox' | 'board' | 'sensors' | 'teknofest' | 'cert'
+    this.currentAppMode = 'lessons'; // 'lessons' | 'sandbox' | 'sensors' | 'teknofest' | 'cert'
     this.currentLesson = null;
-    this.currentStep = 'tani';       // 'tani' | 'kur' | 'calistir' | 'gorev'
-    this.currentTab = 'ders';         // 'ders' | 'kod' | 'gorev'
+    this.currentStep = 'kur';        // 'tani' | 'kur' | 'calistir' | 'gorev'
+    this.currentTab = 'ders';        // 'ders' | 'kod' | 'gorev'
     this.isNightMode = true;
 
     this.init();
   }
 
   init() {
-    // 1. Türkçe Sesli Asistanı Başlat
-    this.speechGuide = new SpeechGuide('speech-guide-container');
+    // 1. Türkçe Sesli Asistan
+    this.speechGuide = new SpeechGuide('altyazi');
 
-    // 2. 360° Kart İnceleyici
+    // 2. 360° Kart ve Pin Tanıtım Görünümü (1. Adım "Tanı")
     this.boardViewer = new BoardViewer('bv-container');
 
-    // 3. 12 Sensör ve Modül Vitrini
+    // 3. 12 Sensör Galerisi
     this.sensorExplorer = new SensorExplorer('sensor-container', {
       onSelectLesson: (lessonId) => {
         this.setAppMode('lessons');
@@ -48,26 +48,30 @@ class DeneyapAtolyeApp {
     });
 
     // 4. Serbest Deney Masası (Sandbox)
-    this.sandboxSimulator = new SandboxSimulator('sandbox-container');
+    this.sandboxSimulator = new SandboxSimulator('sandbox-container', {
+      onClose: () => {
+        this.setAppMode('lessons');
+      }
+    });
 
     // 5. Başarı Sertifikası Stüdyosu
-    this.certificateGenerator = new CertificateGenerator('cert-container');
+    this.certificateGenerator = new CertificateGenerator('cert-container', {
+      onClose: () => {
+        this.setAppMode('lessons');
+      }
+    });
 
-    // 6. Ders Devre Simülatörü
+    // 6. Ders Devre & Breadboard Simülatörü
     this.circuitSimulator = new CircuitSimulator('sim-container', {
-      onStateChange: (state) => {
-        // Durum değişikliği
-      }
+      onStateChange: () => {}
     });
 
-    // 7. Seri Port Monitörü & Web Serial
+    // 7. Seri Monitör & Web Serial
     this.serialMonitor = new SerialMonitor('serial-monitor-container', {
-      onSend: (text) => {
-        // TX gönderimi
-      }
+      onSend: () => {}
     });
 
-    // 8. Sanal Arduino C++ Motoru
+    // 8. Sanal Arduino C++ Yürütme Motoru
     this.arduinoEngine = new ArduinoEngine({
       simulator: this.circuitSimulator,
       boardViewer: this.boardViewer,
@@ -95,10 +99,10 @@ class DeneyapAtolyeApp {
     // 10. Olay Dinleyicilerini Bağla
     this.bindDOMEvents();
 
-    // 11. Müfredat Ders Listesini Render Et
+    // 11. Sol Menü Çekmecesini Render Et
     this.renderLessonsList();
 
-    // 12. TEKNOFEST Projeleri Vitrinini Render Et
+    // 12. TEKNOFEST Projeleri Vitrinini Hazırla
     this.renderTeknofestProjects();
 
     // 13. URL Parametresi veya Son Kalınan Dersi Yükle
@@ -112,23 +116,13 @@ class DeneyapAtolyeApp {
     // 15. Açılış Karşılama Anlatımı
     setTimeout(() => {
       if (this.speechGuide && this.currentLesson) {
-        this.speechGuide.speak(`Deneyap Atölyesine hoş geldiniz! Bugünkü konumuz: ${this.currentLesson.title}. Başlamak için 1. adımı inceleyin.`);
+        this.speechGuide.speak(`Deneyap Atölyesine hoş geldiniz! Bugünkü konumuz: ${this.currentLesson.title}.`);
       }
-    }, 1200);
+    }, 1000);
   }
 
   bindDOMEvents() {
-    // 6 Ana Modül Menü Butonları (.top-nav-btn)
-    document.querySelectorAll('.top-nav-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const mode = e.currentTarget.dataset.mode;
-        if (mode) {
-          this.setAppMode(mode);
-        }
-      });
-    });
-
-    // Sol Ders Listesi Çekmecesi Aç/Kapat
+    // Sol Menü Çekmecesi Aç/Kapat
     const listBtn = document.getElementById('liste-dugmesi');
     const drawer = document.getElementById('ders-listesi');
     const backdrop = document.getElementById('perde');
@@ -185,7 +179,7 @@ class DeneyapAtolyeApp {
       });
     });
 
-    // Alt Adımlar (1. Tanı, 2. Devreyi Kur, 3. Kodu Yaz, 4. Görevler)
+    // Alt 4 Adım (1. Tanı, 2. Devreyi Kur, 3. Kodu Yaz, 4. Görevler)
     document.querySelectorAll('.adim-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const step = e.currentTarget.dataset.adim;
@@ -205,46 +199,35 @@ class DeneyapAtolyeApp {
   }
 
   /**
-   * 6 Ana Modül Arasında Temiz Geçiş Sağlar
+   * Modül Değişimi: Dersler, Serbest Masa, Sensörler, TEKNOFEST, Sertifika
    */
   setAppMode(mode) {
     this.currentAppMode = mode;
 
-    // Üst Nav butonlarının aktifliği
-    document.querySelectorAll('.top-nav-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.mode === mode);
-    });
-
     const simContainer = document.getElementById('sim-container');
-    const sandboxContainer = document.getElementById('sandbox-container');
     const bvContainer = document.getElementById('bv-container');
+    const sandboxContainer = document.getElementById('sandbox-container');
     const sensorContainer = document.getElementById('sensor-container');
     const teknofestContainer = document.getElementById('teknofest-container');
     const certContainer = document.getElementById('cert-container');
-    const stepsBar = document.getElementById('alt-adimlar-bolgesi');
+    const altBolge = document.getElementById('alt-bolge');
     const panel = document.getElementById('panel');
 
-    // Hepsini gizle
+    // Tüm sahneleri gizle
     if (simContainer) simContainer.hidden = true;
-    if (sandboxContainer) sandboxContainer.hidden = true;
     if (bvContainer) bvContainer.hidden = true;
+    if (sandboxContainer) sandboxContainer.hidden = true;
     if (sensorContainer) sensorContainer.hidden = true;
     if (teknofestContainer) teknofestContainer.hidden = true;
     if (certContainer) certContainer.hidden = true;
 
-    // Alt adımlar çubuğu sadece derslerde görünür
-    if (stepsBar) {
-      stepsBar.style.display = (mode === 'lessons') ? 'flex' : 'none';
-    }
-
     if (mode === 'lessons') {
+      if (altBolge) altBolge.hidden = false;
       if (panel) panel.classList.remove('gizli');
       this.arduinoEngine.setSimulator(this.circuitSimulator);
       this.switchStep(this.currentStep);
-      if (this.currentLesson && this.speechGuide) {
-        this.speechGuide.speak(`Atölye Dersleri modundasınız. Konu: ${this.currentLesson.title}.`);
-      }
     } else if (mode === 'sandbox') {
+      if (altBolge) altBolge.hidden = true;
       if (sandboxContainer) sandboxContainer.hidden = false;
       if (panel) {
         panel.classList.remove('gizli');
@@ -252,30 +235,28 @@ class DeneyapAtolyeApp {
       }
       this.arduinoEngine.setSimulator(this.sandboxSimulator);
       if (this.speechGuide) {
-        this.speechGuide.speak('Serbest Deney Masasına hoş geldiniz! Parçaları ekleyin ve kodlayarak dilediğiniz gibi deneyin.');
-      }
-    } else if (mode === 'board') {
-      if (bvContainer) bvContainer.hidden = false;
-      if (this.speechGuide) {
-        this.speechGuide.speak('360 derece kart inceleme stüdyosu. Deneyap Kartın pinlerini ve donanımını keşfedin.');
+        this.speechGuide.speak('Serbest Deney Masasına hoş geldiniz! İstediğiniz parçaları ekleyin ve serbestçe kodlayın.');
       }
     } else if (mode === 'sensors') {
+      if (altBolge) altBolge.hidden = true;
       if (sensorContainer) sensorContainer.hidden = false;
       if (this.speechGuide) {
-        this.speechGuide.speak('Milli sensör ve modül rehberindesiniz. Sensörleri canlı parametrelerle test edebilirsiniz.');
+        this.speechGuide.speak('Sensör ve Modül Rehberindesiniz. Milli ekosisteme ait 12 sensörü canlı test edebilirsiniz.');
       }
     } else if (mode === 'teknofest') {
+      if (altBolge) altBolge.hidden = true;
       if (teknofestContainer) teknofestContainer.hidden = false;
       if (this.speechGuide) {
         this.speechGuide.speak('TEKNOFEST ve İleri Seviye Proje Vitrini. Bir proje seçerek atölyede simüle edebilirsiniz.');
       }
     } else if (mode === 'cert') {
+      if (altBolge) altBolge.hidden = true;
       if (certContainer) certContainer.hidden = false;
       if (this.certificateGenerator) {
         this.certificateGenerator.renderCertificate();
       }
       if (this.speechGuide) {
-        this.speechGuide.speak('Tebrikler! Atölye başarı sertifikanızı adınıza özel oluşturup HD olarak indirebilirsiniz.');
+        this.speechGuide.speak('Tebrikler! Resmi başarı sertifikanızı adınıza özel oluşturup HD olarak indirebilirsiniz.');
       }
     }
 
@@ -286,7 +267,6 @@ class DeneyapAtolyeApp {
     const listEl = document.getElementById('ders-listesi');
     if (!listEl) return;
 
-    // Dersleri kategorilerine göre grupla
     const categories = {};
     LESSONS_DATA.forEach(lesson => {
       if (!categories[lesson.category]) categories[lesson.category] = [];
@@ -295,9 +275,31 @@ class DeneyapAtolyeApp {
 
     let html = `
       <div class="ders-listesi-header">
-        <h3>DENEYAP ATÖLYESİ MÜFREDATI</h3>
+        <h3>DENEYAP ATÖLYESİ</h3>
         <span class="toplam-ders">${LESSONS_DATA.length} Ders</span>
       </div>
+
+      <!-- Özel Atölye Modülleri Hızlı Erişim Kartları -->
+      <div class="drawer-moduller-grid">
+        <button class="drawer-modul-btn" data-modul="sandbox">
+          <span class="dm-icon">⚡</span>
+          <span class="dm-text">Serbest Masa</span>
+        </button>
+        <button class="drawer-modul-btn" data-modul="sensors">
+          <span class="dm-icon">📡</span>
+          <span class="dm-text">Sensör Rehberi</span>
+        </button>
+        <button class="drawer-modul-btn" data-modul="teknofest">
+          <span class="dm-icon">🚀</span>
+          <span class="dm-text">TEKNOFEST</span>
+        </button>
+        <button class="drawer-modul-btn" data-modul="cert">
+          <span class="dm-icon">🏆</span>
+          <span class="dm-text">Sertifika</span>
+        </button>
+      </div>
+
+      <!-- Müfredat Ders Listesi -->
       <div class="ders-listesi-body">
     `;
 
@@ -327,15 +329,28 @@ class DeneyapAtolyeApp {
     html += `</div>`;
     listEl.innerHTML = html;
 
-    // Tıklama olayları
+    const closeDrawer = () => {
+      document.getElementById('ders-listesi').classList.remove('acik');
+      document.getElementById('perde').hidden = true;
+      document.getElementById('liste-dugmesi').setAttribute('aria-expanded', false);
+    };
+
+    // Özel Modül Butonları
+    listEl.querySelectorAll('.drawer-modul-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const modul = e.currentTarget.dataset.modul;
+        this.setAppMode(modul);
+        closeDrawer();
+      });
+    });
+
+    // Ders Seçim Butonları
     listEl.querySelectorAll('.ders-ogesi').forEach(item => {
       item.addEventListener('click', () => {
         const id = item.dataset.ders;
         this.setAppMode('lessons');
         this.loadLesson(id, true);
-        document.getElementById('ders-listesi').classList.remove('acik');
-        document.getElementById('perde').hidden = true;
-        document.getElementById('liste-dugmesi').setAttribute('aria-expanded', false);
+        closeDrawer();
         audioSynth.playClick();
       });
     });
@@ -347,6 +362,7 @@ class DeneyapAtolyeApp {
 
     let html = `
       <header class="tf-header">
+        <button class="btn-atolye-don" id="tf-btn-back">← Atölye Dersine Dön</button>
         <span class="tf-header-tag">🚀 MİLLİ TEKNOLOJİ HAMLESİ · YARIŞMA PROJELERİ</span>
         <h2>TEKNOFEST & İleri Seviye Proje Vitrini</h2>
         <p>Gerçek hayat ve TEKNOFEST yarışmalarına yönelik kapsamlı Deneyap Kart proje mimarileri. Şablonu atölyede açıp doğrudan simüle edebilir veya kodlarını geliştirebilirsiniz.</p>
@@ -377,7 +393,13 @@ class DeneyapAtolyeApp {
     html += `</div>`;
     container.innerHTML = html;
 
-    // Tıklama olayları
+    // Geri Dön Butonu
+    container.querySelector('#tf-btn-back')?.addEventListener('click', () => {
+      this.setAppMode('lessons');
+      audioSynth.playClick();
+    });
+
+    // Projeyi Yükle Butonları
     container.querySelectorAll('.tf-btn-load').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const projId = e.currentTarget.dataset.projId;
@@ -398,7 +420,7 @@ class DeneyapAtolyeApp {
     audioSynth.playSuccess();
     fireConfetti();
     if (this.speechGuide) {
-      this.speechGuide.speak(`${proj.title} projesi atölyeye yüklendi. C++ kodunu inceleyip 'Kodu Derle ve Çalıştır' butonu ile simüle edebilirsiniz.`);
+      this.speechGuide.speak(`${proj.title} projesi atölyeye yüklendi. C++ kodunu inceleyip Kodu Çalıştır butonu ile simüle edebilirsiniz.`);
     }
   }
 
@@ -411,6 +433,16 @@ class DeneyapAtolyeApp {
       const url = new URL(window.location);
       url.searchParams.set('ders', lesson.id);
       window.history.pushState({}, '', url);
+    }
+
+    // Ekmek Kırıntıları
+    const breadcrumbs = document.getElementById('kirintilar');
+    if (breadcrumbs) {
+      breadcrumbs.innerHTML = `
+        <span class="kr-cat">${lesson.category}</span>
+        <span class="kr-sep">/</span>
+        <strong class="kr-title">${lesson.title}</strong>
+      `;
     }
 
     // Ders Sekmesi İçeriğini Doldur
@@ -467,8 +499,8 @@ class DeneyapAtolyeApp {
       el.classList.toggle('aktif', el.dataset.ders === lesson.id);
     });
 
-    // İlk Adım Olarak "Tanı"ya Geç
-    this.switchStep('tani');
+    // İlgili derse geçildiğinde 2. Adıma ("Devreyi Kur") geç
+    this.switchStep('kur');
   }
 
   renderTasks(lesson) {
@@ -561,10 +593,9 @@ class DeneyapAtolyeApp {
       audioSynth.playSuccess();
       fireConfetti();
       if (this.speechGuide) {
-        this.speechGuide.speak('Tebrikler! Görevi başarıyla tamamladınız. Harika bir iş çıkardınız!');
+        this.speechGuide.speak('Tebrikler! Görevi başarıyla tamamladınız.');
       }
 
-      // Tüm ders görevleri tamamlandı mı?
       const allDone = (this.currentLesson.tasks || []).every(t => ProgressManager.isTaskCompleted(t.id));
       if (allDone) {
         ProgressManager.markLessonCompleted(this.currentLesson.id);
@@ -652,6 +683,7 @@ class DeneyapAtolyeApp {
     } else if (step === 'gorev') {
       if (bvContainer) bvContainer.hidden = true;
       if (simContainer) simContainer.hidden = false;
+      this.circuitSimulator.setMode('sim');
       this.switchTab('gorev');
       if (this.speechGuide) {
         this.speechGuide.speak('4. Adım: Görevleri çözün ve Denetle butonuna tıklayın.');

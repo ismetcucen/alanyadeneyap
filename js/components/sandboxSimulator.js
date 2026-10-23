@@ -8,6 +8,7 @@ export class SandboxSimulator {
   constructor(containerId, options = {}) {
     this.container = document.getElementById(containerId);
     this.options = options;
+    this.onClose = options.onClose || (() => {});
     this.activeComponents = new Set(['deneyap-kart', 'led-red', 'pot']);
 
     this.state = {
@@ -42,6 +43,7 @@ export class SandboxSimulator {
           </div>
 
           <div class="sandbox-actions">
+            <button class="sb-action-btn" id="sb-btn-back" title="Atölyeye Dön">← Atölye Dersine Dön</button>
             <button class="sb-action-btn" id="sb-btn-clear" title="Masayı Temizle">🗑️ Tümünü Kaldır</button>
             <button class="sb-action-btn sb-btn-add" id="sb-btn-toggle-drawer">
               <span>+ Bileşen Ekle</span>
@@ -81,6 +83,11 @@ export class SandboxSimulator {
   }
 
   bindEvents() {
+    this.container.querySelector('#sb-btn-back')?.addEventListener('click', () => {
+      this.onClose();
+      audioSynth.playClick();
+    });
+
     // Çekmece Aç/Kapat
     const toggleBtn = this.container.querySelector('#sb-btn-toggle-drawer');
     const drawer = this.container.querySelector('#sb-drawer');

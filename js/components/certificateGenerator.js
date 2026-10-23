@@ -6,8 +6,10 @@ import { audioSynth } from './audioSynth.js';
 import { fireConfetti } from '../utils/helpers.js';
 
 export class CertificateGenerator {
-  constructor(containerId) {
+  constructor(containerId, options = {}) {
     this.container = document.getElementById(containerId);
+    this.options = options;
+    this.onClose = options.onClose || (() => {});
     this.studentName = 'Genç Mucit';
     this.schoolName = 'Deneyap Teknoloji Atölyesi';
 
@@ -21,6 +23,7 @@ export class CertificateGenerator {
         <!-- Sol Ayarlar ve Bilgi Girişi -->
         <aside class="cert-sidebar">
           <div class="cert-sidebar-header">
+            <button class="btn-atolye-don" id="cert-btn-back">← Atölye Dersine Dön</button>
             <span class="cert-badge">🏆 BAŞARI SERTİFİKASI</span>
             <h3>Sertifikanı Özelleştir</h3>
             <p>Atölyeyi başarıyla tamamladın! Adını ve okulunu yazarak resmi sertifikanı oluştur.</p>
@@ -58,6 +61,11 @@ export class CertificateGenerator {
   }
 
   bindEvents() {
+    this.container.querySelector('#cert-btn-back')?.addEventListener('click', () => {
+      this.onClose();
+      audioSynth.playClick();
+    });
+
     const inputName = this.container.querySelector('#cert-input-name');
     const inputSchool = this.container.querySelector('#cert-input-school');
 
